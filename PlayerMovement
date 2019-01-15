@@ -1,0 +1,71 @@
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+    //Публичная переменная хранящая скорость
+    public float speed = 6f;
+
+    Vector3 movement;
+    Animator anim;
+    Rigidbody playerRiditbody;
+    int flooerMask;
+    float camRayLength = 100f;
+
+    void Awake()
+    {
+        flooerMask = LayerMask.GetMask("Floor");
+        anim = GetComponent<Animator>();
+        playerRiditbody = GetComponent<Rigidbody>();
+    }
+
+    void FixedUpdate()
+    {
+        //
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+        Move(h, v);
+        Turning();  
+        Animating(h, v);
+    }
+
+    void Move(float h, float v)
+    {
+        //устанавливаем переменной вектора3 положение по горизонатли и вертикали текущего класса - Player
+        movement.Set(h, 0f, v);
+
+        //Двигаем вектор3 на скорость установленной в публичной переменной Speed и умножаем на дельту
+        movement = movement.normalized * speed * Time.deltaTime;
+
+        //transform - это переменная класса PlayerMovement текущее расположение
+        playerRiditbody.MovePosition(transform.position + movement);
+    }
+
+    void Turning()
+    {
+        //Создаем луч который записываем в переменную camRay, у основной каметры мы пускаем луч в точку где находится мышка
+        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //Переменная для хранения точки на floor в которую будет/или не  будет попадать луч
+        RaycastHit floorHit;
+
+        if (Physics.Raycast(camRay, out floorHit, camRayLength, flooerMask))
+        {
+            //Создаем вектор3 в которой будем вектор от точки с которой столкунлся луч до игрока
+            Vector3 playerToMouse = floorHit.point - transform.position;
+
+            playerToMouse.y = 0f;
+            //quaternion это способ хранения вращения 
+            Quaternion newRotation = Quaternion.LookRotation(playerToMouse);
+            playerRiditbody.MoveRotation(newRotation);
+
+        }
+    }
+
+    void Animating(float h, float v)
+    {
+        //переменная булево или горизонатльная не 0 или вертикальная не 0
+        bool walking = h != 0f || v != 0f;
+        anim.SetBool("IsWalking", walking);
+
+
+    }
+}
