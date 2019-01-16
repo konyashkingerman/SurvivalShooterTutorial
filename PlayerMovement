@@ -13,8 +13,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Awake()
     {
+        //используем слой Floor для получения масик
+        //LayerMask - используем для нашего луча из камеры
         flooerMask = LayerMask.GetMask("Floor");
+        //Определеяем переменную anim компонентом Animator объекта Player
         anim = GetComponent<Animator>();
+        //Определеяем переменную playerRiditbody компонентом Rigidbody объекта Player
         playerRiditbody = GetComponent<Rigidbody>();
     }
 
